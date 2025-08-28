@@ -6,10 +6,10 @@ Welcome to the ProjectZero documentation! This documentation is organized into s
 
 ## 📁 Documentation Structure
 
-### 🏗️ **Architecture**
+### 🏠️ **Architecture**
 `Architecture/`
-- **ARCHITECTURE.md** - High-level system architecture overview
-- Core system design patterns and principles
+- **UNITY_ARCHITECTURE.md** - Unity-specific system architecture overview
+- Core Unity system design patterns and principles
 
 ### ⚔️ **Combat**
 `Combat/`
@@ -19,7 +19,6 @@ Welcome to the ProjectZero documentation! This documentation is organized into s
 ### 🚀 **Development**
 `Development/`
 - **DEVELOPMENT_ROADMAP.md** - Project roadmap and milestones
-- **PHASE_1_5_IMPLEMENTATION_PLAN.md** - Current implementation phase details
 - **PROJECT_STATUS.md** - Current project status and progress
 
 ### 🎮 **Game Design**
@@ -29,40 +28,33 @@ Welcome to the ProjectZero documentation! This documentation is organized into s
 
 ### 🛠️ **Setup Guides**
 `Setup-Guides/`
-- **SETUP_GUIDE.md** - Project setup instructions
-- Environment configuration and prerequisites
+- **UNITY_SETUP_GUIDE.md** - Unity project setup instructions
+- Unity-specific environment configuration and prerequisites
 
 ### 📋 **Tasks**
 `Tasks/`
-- **tasks.md** - General project tasks and todos
+- **tasks_unity.md** - Unity-specific project tasks and todos
 - **3D_Grid_Pathfinding_Task_Breakdown.md** - Detailed pathfinding system implementation plan
 
 ### 🔧 **Technical**
 `Technical/`
 - **CODE_CLEANUP_MIGRATION_GUIDE.md** - Code cleanup procedures
-- **DebugWireframeSystem_Usage.md** - Debug visualization system
-- **DEBUG_CONTROLLER_FIXES.md** - Controller debugging information
-- **TacticalTimeDilationAPI.md** - Time dilation system API
-- **TimeDilationIntegration.md** - Time dilation integration guide
 - **DEBUG_GUIDE.md** - General debugging guide
 
 ### 🔧 **Systems**
 `Systems/`
 
 #### 🛡️ **Cover System** (`Systems/Cover-System/`)
-- **COVER_SYSTEM_README.md** - Cover system overview
-- **01_QuickStart.md** - Quick start guide
-- **03_BlueprintGuide.md** - Blueprint implementation guide
-- **04_Testing.md** - Testing procedures and commands
-- **ACoverPoint_ClassReference.md** - Class reference documentation
+- **UNITY_COVER_SYSTEM_README.md** - Unity cover system overview
+- **01_QuickStart.md** - Quick start guide (Unity adaptation)
+- **04_Testing.md** - Testing procedures and Unity console commands
 - **CoverSystemDesign.md** - System design document
 - **COVER_SYSTEM_FLOW_STRUCTURE.md** - System flow and structure
 - **COVER_SYSTEM_SETUP.md** - Setup instructions
 - **COVER_SYSTEM_STATUS.md** - Current implementation status
 - **CoverSystemImprovements.md** - Planned improvements
-- **BP_CoverTestActor.md** - Test actor documentation
-- **ConsoleCommands.md** - Available console commands
-- **TestLevel_Setup.md** - Test level configuration
+- **ConsoleCommands.md** - Available Unity console commands
+- **TestLevel_Setup.md** - Test scene configuration
 
 #### 🗺️ **Pathfinding System** (`Systems/Pathfinding/`)
 - Ready for 3D grid pathfinding system documentation
@@ -73,9 +65,9 @@ Welcome to the ProjectZero documentation! This documentation is organized into s
 
 ## 🚀 Quick Start
 
-1. **New to the project?** Start with [`Setup-Guides/SETUP_GUIDE.md`](Setup-Guides/SETUP_GUIDE.md)
-2. **Understanding the architecture?** Read [`Architecture/ARCHITECTURE.md`](Architecture/ARCHITECTURE.md)
-3. **Working on cover system?** Go to [`Systems/Cover-System/01_QuickStart.md`](Systems/Cover-System/01_QuickStart.md)
+1. **New to the project?** Start with [`Setup-Guides/UNITY_SETUP_GUIDE.md`](Setup-Guides/UNITY_SETUP_GUIDE.md)
+2. **Understanding the architecture?** Read [`Architecture/UNITY_ARCHITECTURE.md`](Architecture/UNITY_ARCHITECTURE.md)
+3. **Working on cover system?** Go to [`Systems/Cover-System/UNITY_COVER_SYSTEM_README.md`](Systems/Cover-System/UNITY_COVER_SYSTEM_README.md)
 4. **Planning development?** Check [`Development/DEVELOPMENT_ROADMAP.md`](Development/DEVELOPMENT_ROADMAP.md)
 5. **Need to debug?** Use [`Technical/DEBUG_GUIDE.md`](Technical/DEBUG_GUIDE.md)
 
