@@ -29,6 +29,8 @@ MonoBehaviour:
   minYawAngle: 0
   pitchSmoothTime: 0.3
   yawSmoothTime: 0.3
+  rotationSpeed: 1.3
+  mouseSensitivity: 1
   enableEdgeScrolling: 0
   edgeScrollBorder: 20
   edgeScrollSpeedMultiplier: 0.5
