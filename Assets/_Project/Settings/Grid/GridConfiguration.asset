@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad2ada60345e69e4081da4c1101077fc, type: 3}
+  m_Name: GridConfiguration
+  m_EditorClassIdentifier: 
+  _gridWidth: 50
+  _gridHeight: 10
+  _gridDepth: 50
+  _nodeSize: 1
+  _gridOrigin: {x: -25.16, y: 0, z: 0}
+  _allowDiagonalMovement: 1
+  _allowVerticalMovement: 1
+  _maxClimbHeight: 2
+  _maxPathfindingIterations: 10000
+  _baseCost: 1
+  _diagonalCost: 1.414
+  _verticalCost: 2
+  _roughTerrainMultiplier: 1.5
+  _hazardousTerrainMultiplier: 3
+  _climbableTerrainMultiplier: 2.5
+  _cacheNeighbors: 1
+  _maxConcurrentPathfindingRequests: 4
+  _pathfindingTimeSlice: 0.005
+  _useUnityJobSystem: 0
+  _obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _obstacleDetectionRadius: 0.4
+  _groundDetectionDistance: 2
+  _groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  _showGridInEditor: 1
+  _showWalkableNodes: 1
+  _showUnwalkableNodes: 0
+  _showVerticalConnections: 1
+  _walkableNodeColor: {r: 0, g: 1, b: 0, a: 1}
+  _unwalkableNodeColor: {r: 1, g: 0, b: 0, a: 1}
+  _occupiedNodeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  _selectedNodeColor: {r: 0, g: 0, b: 1, a: 1}
+  _pathNodeColor: {r: 0, g: 1, b: 1, a: 1}
+  _enablePathfindingDebug: 0
+  _logPathfindingStatistics: 0
+  _debugVisualizationDuration: 2
