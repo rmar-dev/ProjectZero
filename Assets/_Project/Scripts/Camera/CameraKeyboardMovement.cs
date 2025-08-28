@@ -81,24 +81,37 @@ namespace ProjectZero.Camera
 
         private void ApplyMovement()
         {
-            // Smooth movement interpolation
-            if (cameraContext.Settings.UseAcceleration)
+            // Ultra-crispy movement with instant stop
+            Vector3 tempVelocity = cameraContext.CurrentVelocity;
+            
+            if (targetVelocity.magnitude > 0.01f)
             {
-                Vector3 tempVelocity = cameraContext.CurrentVelocity;
-                currentVelocity = Vector3.SmoothDamp(
-                    currentVelocity, 
-                    targetVelocity, 
-                    ref tempVelocity, 
-                    cameraContext.Settings.MovementSmoothTime,
-                    Mathf.Infinity,
-                    Time.unscaledDeltaTime
-                );
-                cameraContext.CurrentVelocity = tempVelocity;
+                if (cameraContext.Settings.UseAcceleration)
+                {
+                    // Ultra-crisp acceleration - almost no smoothing at all
+                    float accelerationTime = cameraContext.Settings.MovementSmoothTime * 0.02f; // Only 2% of original time
+                    currentVelocity = Vector3.SmoothDamp(
+                        currentVelocity, 
+                        targetVelocity, 
+                        ref tempVelocity, 
+                        accelerationTime,
+                        Mathf.Infinity,
+                        Time.unscaledDeltaTime
+                    );
+                }
+                else
+                {
+                    // Completely direct movement - zero smoothing
+                    currentVelocity = targetVelocity;
+                }
             }
             else
             {
-                currentVelocity = targetVelocity;
+                // INSTANT STOP - no smoothing whatsoever when no input
+                currentVelocity = Vector3.zero;
             }
+            
+            cameraContext.CurrentVelocity = tempVelocity;
 
             // Apply movement to camera target
             if (currentVelocity.magnitude > 0.01f)

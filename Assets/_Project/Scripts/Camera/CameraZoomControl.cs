@@ -124,15 +124,27 @@ namespace ProjectZero.Camera
         {
             if (positionComposer == null) return;
 
-            // Smooth zoom interpolation
-            positionComposer.CameraDistance = Mathf.SmoothDamp(
-                positionComposer.CameraDistance,
-                targetZoomDistance,
-                ref currentZoomVelocity,
-                cameraContext.Settings.ZoomSmoothTime,
-                Mathf.Infinity,
-                Time.unscaledDeltaTime
-            );
+            // Smooth zoom interpolation that feels natural between zoom levels
+            float currentDistance = positionComposer.CameraDistance;
+            float distanceToTarget = Mathf.Abs(targetZoomDistance - currentDistance);
+            
+            if (distanceToTarget < 0.1f)
+            {
+                // Snap when extremely close to prevent micro-movements
+                positionComposer.CameraDistance = targetZoomDistance;
+            }
+            else
+            {
+                // Smooth interpolation for pleasant zoom transitions
+                positionComposer.CameraDistance = Mathf.SmoothDamp(
+                    currentDistance,
+                    targetZoomDistance,
+                    ref currentZoomVelocity,
+                    cameraContext.Settings.ZoomSmoothTime * 0.8f, // Slightly faster than setting but still smooth
+                    Mathf.Infinity,
+                    Time.unscaledDeltaTime
+                );
+            }
         }
         
         private void ApplyRotation()

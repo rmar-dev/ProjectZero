@@ -39,6 +39,16 @@ namespace ProjectZero.Camera
         [SerializeField] [Tooltip("Enforce strict limits even for zoom-coupled rotation")]
         private bool enforceStrictLimits = true;
         
+        [Header("Smoothing Control")]
+        [SerializeField] [Tooltip("Use crisp movement (much less floaty, more direct)")]
+        private bool useCrispMovement = true;
+        [SerializeField] [Range(1f, 10f)] [Tooltip("Movement speed multiplier (higher = faster)")]
+        private float movementSpeed = 6f;
+        [SerializeField] [Range(1f, 10f)] [Tooltip("Rotation speed multiplier (higher = faster)")]
+        private float rotationSpeed2 = 4f;
+        [SerializeField] [Range(0.1f, 2f)] [Tooltip("Distance where movement becomes instant (higher = more instant)")]
+        private float crispThreshold = 2f;
+        
         private CinemachinePositionComposer positionComposer;
         
         // Smooth zoom variables
@@ -198,35 +208,76 @@ namespace ProjectZero.Camera
         {
             if (virtualCamera == null || positionComposer == null) return;
             
-            // Smooth zoom with SmoothDamp
-            float currentDistance = positionComposer.CameraDistance;
-            float smoothDistance = Mathf.SmoothDamp(
-                currentDistance,
-                targetZoomDistance,
-                ref currentZoomVelocity,
-                zoomSmoothTime
-            );
-            positionComposer.CameraDistance = smoothDistance;
+            // Apply zoom smoothing (can use responsive or traditional)
+            ApplyZoomSmoothing();
             
-            // Smooth rotation with SmoothDampAngle for each axis
+            // Apply rotation smoothing (responsive curve-based)
+            ApplyRotationSmoothing();
+        }
+        
+        private void ApplyZoomSmoothing()
+        {
+            float currentDistance = positionComposer.CameraDistance;
+            float distanceToTarget = Mathf.Abs(targetZoomDistance - currentDistance);
+            
+            if (useCrispMovement)
+            {
+                // Smooth zoom with controlled interpolation for nice feel between positions
+                if (distanceToTarget < 0.1f)
+                {
+                    // Snap when extremely close to prevent micro-movements
+                    positionComposer.CameraDistance = targetZoomDistance;
+                }
+                else
+                {
+                    // Smooth interpolation that feels natural between zoom levels
+                    positionComposer.CameraDistance = Mathf.SmoothDamp(
+                        currentDistance,
+                        targetZoomDistance,
+                        ref currentZoomVelocity,
+                        zoomSmoothTime * 0.8f, // Slightly faster than default but still smooth
+                        Mathf.Infinity,
+                        Time.unscaledDeltaTime
+                    );
+                }
+            }
+            else
+            {
+                // Traditional smooth zoom with good feel
+                positionComposer.CameraDistance = Mathf.SmoothDamp(
+                    currentDistance,
+                    targetZoomDistance,
+                    ref currentZoomVelocity,
+                    zoomSmoothTime,
+                    Mathf.Infinity,
+                    Time.unscaledDeltaTime
+                );
+            }
+        }
+        
+        private void ApplyRotationSmoothing()
+        {
             Vector3 currentRotation = virtualCamera.transform.eulerAngles;
             
-            // Handle angle wrapping for smooth interpolation
+            // Traditional smooth rotation (reverted from crisp)
             float smoothPitch = Mathf.SmoothDampAngle(
                 currentRotation.x,
                 targetRotation.x,
                 ref rotationVelocity.x,
-                rotationSmoothTime
+                rotationSmoothTime,
+                Mathf.Infinity,
+                Time.unscaledDeltaTime
             );
             
             float smoothYaw = Mathf.SmoothDampAngle(
                 currentRotation.y,
                 targetRotation.y,
                 ref rotationVelocity.y,
-                rotationSmoothTime
+                rotationSmoothTime,
+                Mathf.Infinity,
+                Time.unscaledDeltaTime
             );
             
-            // Apply smoothed rotation
             virtualCamera.transform.eulerAngles = new Vector3(smoothPitch, smoothYaw, 0f);
         }
 

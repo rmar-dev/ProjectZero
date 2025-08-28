@@ -65,6 +65,13 @@ namespace ProjectZero.Camera
         
         [SerializeField] [Range(0.1f, 2f)] [Tooltip("How quickly the camera yaw rotates when zooming")]
         private float yawSmoothTime = 0.3f;
+        
+        [Header("Manual Rotation Speed")]
+        [SerializeField] [Range(0.5f, 5f)] [Tooltip("Speed of manual camera rotation (right-click drag)")]
+        private float rotationSpeed = 2f;
+        
+        [SerializeField] [Range(0.5f, 3f)] [Tooltip("Mouse sensitivity multiplier for rotation")]
+        private float mouseSensitivity = 1f;
 
         [Header("Edge Scrolling")]
         [SerializeField] 
@@ -124,6 +131,10 @@ namespace ProjectZero.Camera
         public float MaxYawAngle => Mathf.Clamp(maxYawAngle, -180f, 180f);
         public float MinYawAngle => Mathf.Clamp(minYawAngle, -180f, 180f);
         public float YawSmoothTime => Mathf.Max(0.01f, yawSmoothTime);
+        
+        // Manual rotation properties
+        public float RotationSpeed => Mathf.Max(0.1f, rotationSpeed);
+        public float MouseSensitivity => Mathf.Max(0.1f, mouseSensitivity);
         
         // Backward compatibility
         public float MaxRotationAngle => MaxPitchAngle;
