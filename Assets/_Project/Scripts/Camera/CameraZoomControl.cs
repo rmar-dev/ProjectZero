@@ -112,8 +112,13 @@ namespace ProjectZero.Camera
                 return zoomAction.action.ReadValue<float>();
             }
 
-            // Fallback to traditional input system
-            return Input.GetAxis("Mouse ScrollWheel");
+            // No fallback - require Input Action to be configured
+            if (zoomAction == null)
+            {
+                Debug.LogWarning($"[CameraZoomControl] Zoom Action not assigned on {gameObject.name}. Mouse wheel zoom will not work.");
+            }
+            
+            return 0f;
         }
 
         #endregion

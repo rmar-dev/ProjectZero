@@ -21,6 +21,9 @@ namespace ProjectZero.Camera
         
         [SerializeField] [Range(1f, 5f)] 
         private float accelerationMultiplier = 2f;
+        
+        [SerializeField] [Tooltip("When enabled, WASD moves relative to camera rotation (W = forward in camera direction). When disabled, WASD moves in world directions (W = north).")]
+        private bool useCameraRelativeMovement = true;
 
         [Header("Zoom Settings")]
         [SerializeField] [Range(5f, 100f)] 
@@ -74,6 +77,7 @@ namespace ProjectZero.Camera
         public float MovementSmoothTime => Mathf.Max(0.01f, movementSmoothTime);
         public bool UseAcceleration => useAcceleration;
         public float AccelerationMultiplier => Mathf.Max(1f, accelerationMultiplier);
+        public bool UseCameraRelativeMovement => useCameraRelativeMovement;
         
         public float MinZoomDistance => Mathf.Max(1f, minZoomDistance);
         public float MaxZoomDistance => Mathf.Max(minZoomDistance + 1f, maxZoomDistance);

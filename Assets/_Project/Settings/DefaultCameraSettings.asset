@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8daf34d52a8bc3b4c8663cce6e15d4ba, type: 3}
+  m_Name: DefaultCameraSettings
+  m_EditorClassIdentifier: 
+  moveSpeed: 10
+  movementSmoothTime: 0.3
+  useAcceleration: 1
+  accelerationMultiplier: 2
+  minZoomDistance: 10
+  maxZoomDistance: 50
+  zoomSpeed: 2
+  zoomSmoothTime: 0.2
+  enableEdgeScrolling: 1
+  edgeScrollBorder: 20
+  edgeScrollSpeedMultiplier: 0.5
+  mapBounds: {x: 100, y: 100}
+  enforceBounds: 1
+  followSpeed: 1
+  followDeadZone: 3
+  followSmoothTime: 0.5
+  inputResponseTime: 0.1
+  allowInputDuringPause: 0

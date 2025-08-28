@@ -150,11 +150,8 @@ namespace ProjectZero.Camera
                 return movementAction.action.ReadValue<Vector2>();
             }
 
-            // Fallback to legacy input
-            return new Vector2(
-                Input.GetAxisRaw("Horizontal"),
-                Input.GetAxisRaw("Vertical")
-            );
+            // No fallback - require Input Action to be configured
+            return Vector2.zero;
         }
 
         private float GetZoomInput()
@@ -164,8 +161,8 @@ namespace ProjectZero.Camera
                 return zoomAction.action.ReadValue<float>();
             }
 
-            // Fallback to legacy input
-            return Input.GetAxis("Mouse ScrollWheel");
+            // No fallback - require Input Action to be configured
+            return 0f;
         }
 
         #endregion

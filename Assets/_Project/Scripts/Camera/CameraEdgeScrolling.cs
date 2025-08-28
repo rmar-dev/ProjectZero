@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace ProjectZero.Camera
 {
@@ -61,7 +62,7 @@ namespace ProjectZero.Camera
                 return;
             }
 
-            Vector2 mousePosition = Input.mousePosition;
+            Vector2 mousePosition = Mouse.current?.position.ReadValue() ?? Vector2.zero;
             Vector2 screenSize = new Vector2(Screen.width, Screen.height);
             float borderSize = cameraContext.Settings.EdgeScrollBorder;
 
@@ -132,7 +133,7 @@ namespace ProjectZero.Camera
         /// </summary>
         public bool IsMouseInEdgeZone()
         {
-            Vector2 mousePosition = Input.mousePosition;
+            Vector2 mousePosition = Mouse.current?.position.ReadValue() ?? Vector2.zero;
             Vector2 screenSize = new Vector2(Screen.width, Screen.height);
             float borderSize = cameraContext?.Settings.EdgeScrollBorder ?? 20f;
 
@@ -163,7 +164,7 @@ namespace ProjectZero.Camera
 
         private void OnGUI()
         {
-            if (!IsEnabled || !cameraContext.Settings.EnableEdgeScrolling) return;
+            if (!IsEnabled || cameraContext == null || cameraContext.Settings == null || !cameraContext.Settings.EnableEdgeScrolling) return;
 
             // Draw edge scroll borders in scene view
             float borderSize = cameraContext.Settings.EdgeScrollBorder;

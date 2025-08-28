@@ -61,8 +61,10 @@ namespace ProjectZero.Camera
 
             Vector2 inputVector = GetMovementInput();
             
-            // Convert 2D input to 3D world movement
-            Vector3 worldMovement = new Vector3(inputVector.x, 0f, inputVector.y);
+            // Convert 2D input to 3D movement (camera-relative or world-space)
+            Vector3 worldMovement = cameraContext.Settings.UseCameraRelativeMovement 
+                ? GetCameraRelativeMovement(inputVector)
+                : new Vector3(inputVector.x, 0f, inputVector.y);
             
             // Apply speed and time scaling
             float effectiveSpeed = cameraContext.Settings.MoveSpeed;
@@ -114,11 +116,51 @@ namespace ProjectZero.Camera
                 return movementAction.action.ReadValue<Vector2>();
             }
 
-            // Fallback to traditional input system
-            return new Vector2(
-                Input.GetAxisRaw("Horizontal"),
-                Input.GetAxisRaw("Vertical")
-            );
+            // No fallback - require Input Action to be configured
+            if (movementAction == null)
+            {
+                Debug.LogWarning($"[CameraKeyboardMovement] Movement Action not assigned on {gameObject.name}. WASD will not work.");
+            }
+            
+            return Vector2.zero;
+        }
+
+        /// <summary>
+        /// Converts 2D input (WASD) to 3D movement relative to camera rotation
+        /// </summary>
+        private Vector3 GetCameraRelativeMovement(Vector2 input)
+        {
+            if (input.magnitude < 0.01f)
+                return Vector3.zero;
+
+            // Get camera's forward and right vectors (but keep movement on XZ plane)
+            if (cameraContext?.VirtualCamera == null)
+            {
+                // Fallback to world space if no camera available
+                return new Vector3(input.x, 0f, input.y);
+            }
+
+            // Get camera transform
+            Transform cameraTransform = cameraContext.VirtualCamera.transform;
+            
+            // Get camera's forward and right directions, projected onto XZ plane
+            Vector3 cameraForward = Vector3.ProjectOnPlane(cameraTransform.forward, Vector3.up).normalized;
+            Vector3 cameraRight = Vector3.ProjectOnPlane(cameraTransform.right, Vector3.up).normalized;
+            
+            // Handle case where camera is looking straight down
+            if (cameraForward.magnitude < 0.1f)
+            {
+                // Use camera's rotation around Y axis only
+                float yRotation = cameraTransform.eulerAngles.y * Mathf.Deg2Rad;
+                cameraForward = new Vector3(Mathf.Sin(yRotation), 0f, Mathf.Cos(yRotation));
+                cameraRight = new Vector3(Mathf.Cos(yRotation), 0f, -Mathf.Sin(yRotation));
+            }
+            
+            // Combine input with camera-relative directions
+            Vector3 movement = (cameraRight * input.x) + (cameraForward * input.y);
+            
+            // Ensure movement is normalized to prevent diagonal movement being faster
+            return movement.normalized * input.magnitude;
         }
 
         #endregion

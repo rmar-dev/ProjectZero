@@ -121,7 +121,21 @@ namespace ProjectZero.Camera
         {
             activeCameraComponents.Clear();
 
-            // Find all camera components attached to this GameObject
+            // Auto-discover camera components if none are manually assigned
+            if (cameraComponents == null || cameraComponents.Count == 0)
+            {
+                // Find all ICameraComponent implementations on this GameObject
+                var autoComponents = GetComponents<MonoBehaviour>()
+                    .Where(c => c is ICameraComponent && c != this)
+                    .ToList();
+                
+                cameraComponents.Clear();
+                cameraComponents.AddRange(autoComponents);
+                
+                Debug.Log($"[TacticalCameraController] Auto-discovered {autoComponents.Count} camera components");
+            }
+
+            // Initialize discovered components
             foreach (var component in cameraComponents)
             {
                 if (component is ICameraComponent cameraComponent)
