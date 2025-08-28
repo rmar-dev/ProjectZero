@@ -9,22 +9,81 @@
 
 ---
 
-## 🚀 **PHASE 1: FOUNDATION SYSTEMS** - Unity Implementation Required
+## 🚀 **PHASE 1: CORE FOUNDATION** - Unity Implementation
 
-**Phase 1 Status: Fresh Unity project - all systems need to be implemented from scratch**
+**Current Sprint:** Core Systems Implementation  
+**Target:** Playable squad movement with tactical pause  
+**Timeline:** 2 weeks (Sep 1-14, 2025)
 
-### 📋 **CORE SYSTEMS TO IMPLEMENT** (Unity C#)
-- [ ] **SquadPlayerController.cs** - Unity MonoBehaviour implementation needed
-- [ ] **Squad Controller Prefab** - Unity prefab with component configuration
-- [ ] **Squad Game Manager** - Unity scene and game manager setup
-- [ ] **Unity Input System Integration** - All controls need Unity implementation:
-  - [ ] Camera movement (WASD), zoom, rotation with Cinemachine
-  - [ ] Squad movement (right-click) with Unity NavMesh Agent
-  - [ ] Formation cycling (F key)
-  - [ ] Tactical pause (Space bar) using Time.timeScale
-- [ ] **Character System** - Unity character controller with NavMesh Agent
-- [ ] **Cover System Infrastructure** - Unity cover point GameObject system
-- [ ] **Test Scene** - Unity scene with proper game manager configuration
+### 🔥 **WEEK 1: PROJECT & CORE SETUP** (Sep 1-7)
+
+#### **Priority 1: Unity Project Foundation** ✅ CRITICAL
+- [ ] **Create Unity Project**
+  - [ ] Create new Unity 2022.3 LTS project named "ProjectZero"
+  - [ ] Set up folder structure: `_Project/{Scripts,Prefabs,Scenes,Input,Materials}`
+  - [ ] Install required packages: Input System, Cinemachine, NavMesh Components
+  - [ ] Configure project settings for tactical game
+
+#### **Priority 2: Core State Management** ✅ CRITICAL  
+- [ ] **GameStateManager.cs**
+  - [ ] Create singleton MonoBehaviour in `Scripts/Core/`
+  - [ ] Implement GameState enum: MainMenu, Loading, InGame, Paused, GameOver
+  - [ ] Implement TacticalState enum: RealTime, TacticalPause, SlowMotion
+  - [ ] Add Time.timeScale control for pause/slowmo
+  - [ ] Add Unity Events for state change notifications
+  - [ ] Test state transitions work properly
+
+#### **Priority 3: Input System Foundation** ✅ CRITICAL
+- [ ] **Unity Input System Setup**
+  - [ ] Create `SquadControls.inputactions` asset in `Input/` folder
+  - [ ] Configure Action Maps: TacticalControls, SquadCommands, CameraControls
+  - [ ] Generate C# class from Input Actions
+  - [ ] Test input actions respond in scene
+
+### 🔥 **WEEK 2: SQUAD & CAMERA SYSTEMS** (Sep 8-14)
+
+#### **Priority 4: Camera System** ✅ CRITICAL
+- [ ] **TacticalCameraController.cs**
+  - [ ] Create script in `Scripts/Camera/`
+  - [ ] Set up Cinemachine Virtual Camera with top-down view
+  - [ ] Implement WASD movement with smooth interpolation
+  - [ ] Add mouse wheel zoom with bounds
+  - [ ] Add Q/E rotation controls
+  - [ ] Test camera feels responsive and smooth
+
+#### **Priority 5: Basic Squad System** ✅ CRITICAL
+- [ ] **SquadManager.cs**
+  - [ ] Create MonoBehaviour in `Scripts/Squad/`
+  - [ ] Implement squad member List<SelectableUnit>
+  - [ ] Add formation types: Tight, Spread, Wedge  
+  - [ ] Create basic formation calculation algorithms
+  - [ ] Add right-click contextual command processing
+  - [ ] Test formation switching works
+
+#### **Priority 6: Character Foundation** ✅ CRITICAL
+- [ ] **SelectableUnit.cs**
+  - [ ] Create MonoBehaviour in `Scripts/Characters/`
+  - [ ] Add NavMesh Agent requirement and configuration
+  - [ ] Implement MoveTo(Vector3 destination) method
+  - [ ] Add basic unit properties (name, role, health)
+  - [ ] Create unit selection/highlighting system
+  - [ ] Test units move correctly with NavMesh
+
+#### **Priority 7: Integration & Testing** ✅ CRITICAL
+- [ ] **Scene Setup & Integration**
+  - [ ] Create MainGame.unity scene with NavMesh baked
+  - [ ] Place GameStateManager GameObject in scene  
+  - [ ] Set up SquadManager with 3-4 test units (capsules)
+  - [ ] Configure Cinemachine camera targeting squad center
+  - [ ] Test all systems work together without errors
+
+#### **Priority 8: Input Integration** ✅ CRITICAL  
+- [ ] **SquadPlayerController.cs**
+  - [ ] Create input handler in `Scripts/Input/`
+  - [ ] Connect Input Actions to SquadManager commands
+  - [ ] Implement mouse world position calculation
+  - [ ] Add contextual command determination logic
+  - [ ] Test: Space pauses, F cycles formations, right-click moves squad
 
 ---
 
