@@ -77,8 +77,15 @@ namespace ProjectZero.Camera
         {
             if (settings == null)
             {
-                Debug.LogError($"[TacticalCameraController] CameraSettings is not assigned on {gameObject.name}");
-                return;
+                Debug.LogError($"[TacticalCameraController] No CameraSettings assigned on {gameObject.name}. Please assign a CameraSettings asset in the inspector.");
+                
+                // Create runtime settings as fallback
+                settings = ScriptableObject.CreateInstance<CameraSettings>();
+                Debug.LogWarning($"[TacticalCameraController] Using runtime-created CameraSettings as fallback. This may not have proper configuration.");
+            }
+            else
+            {
+                Debug.Log($"[TacticalCameraController] Using assigned CameraSettings: {settings.name}");
             }
 
             if (cameraTarget == null)
@@ -113,8 +120,10 @@ namespace ProjectZero.Camera
             positionComposer.TargetOffset = Vector3.zero;
             positionComposer.CameraDistance = settings.GetZoomDistance(ZoomLevel);
             
-            // Set camera angle for top-down view (can be adjusted as needed)
-            virtualCamera.transform.rotation = Quaternion.Euler(60f, 0f, 0f); // Tactical angle
+            // Set camera angle for top-down view (will be managed by zoom rotation if enabled)
+            float initialAngle = settings.EnableZoomRotation ? 
+                                settings.GetRotationAngle(ZoomLevel) : 60f;
+            virtualCamera.transform.rotation = Quaternion.Euler(initialAngle, 0f, 0f);
         }
 
         private void InitializeCameraComponents()

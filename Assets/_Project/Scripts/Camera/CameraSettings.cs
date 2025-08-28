@@ -37,6 +37,34 @@ namespace ProjectZero.Camera
         
         [SerializeField] [Range(0.1f, 2f)] 
         private float zoomSmoothTime = 0.2f;
+        
+        [Header("Zoom-Coupled Rotation")]
+        [SerializeField] [Tooltip("When enabled, zooming in rotates camera down (more angled view) and zooming out rotates up (more top-down view)")]
+        private bool enableZoomRotation = true;
+        
+        [Header("Pitch Control (Up/Down Rotation)")]
+        [SerializeField] [Range(10f, 90f)] [Tooltip("Maximum pitch angle when fully zoomed out (top-down strategic view)")]
+        private float maxPitchAngle = 80f;
+        
+        [SerializeField] [Range(10f, 80f)] [Tooltip("Minimum pitch angle when fully zoomed in (closer tactical view)")]
+        private float minPitchAngle = 45f;
+        
+        [Header("Yaw Control (Left/Right Rotation)")]
+        [SerializeField] [Tooltip("Enable yaw rotation coupling with zoom")]
+        private bool enableYawRotation = false;
+        
+        [SerializeField] [Range(-180f, 180f)] [Tooltip("Maximum yaw angle when fully zoomed out")]
+        private float maxYawAngle = 0f;
+        
+        [SerializeField] [Range(-180f, 180f)] [Tooltip("Minimum yaw angle when fully zoomed in")]
+        private float minYawAngle = 0f;
+        
+        [Header("Rotation Timing")]
+        [SerializeField] [Range(0.1f, 2f)] [Tooltip("How quickly the camera pitch rotates when zooming")]
+        private float pitchSmoothTime = 0.3f;
+        
+        [SerializeField] [Range(0.1f, 2f)] [Tooltip("How quickly the camera yaw rotates when zooming")]
+        private float yawSmoothTime = 0.3f;
 
         [Header("Edge Scrolling")]
         [SerializeField] 
@@ -84,6 +112,24 @@ namespace ProjectZero.Camera
         public float ZoomSpeed => Mathf.Max(0.1f, zoomSpeed);
         public float ZoomSmoothTime => Mathf.Max(0.01f, zoomSmoothTime);
         
+        public bool EnableZoomRotation => enableZoomRotation;
+        
+        // Pitch properties
+        public float MaxPitchAngle => Mathf.Clamp(maxPitchAngle, 10f, 90f);
+        public float MinPitchAngle => Mathf.Clamp(minPitchAngle, 10f, Mathf.Min(80f, maxPitchAngle - 5f));
+        public float PitchSmoothTime => Mathf.Max(0.01f, pitchSmoothTime);
+        
+        // Yaw properties
+        public bool EnableYawRotation => enableYawRotation;
+        public float MaxYawAngle => Mathf.Clamp(maxYawAngle, -180f, 180f);
+        public float MinYawAngle => Mathf.Clamp(minYawAngle, -180f, 180f);
+        public float YawSmoothTime => Mathf.Max(0.01f, yawSmoothTime);
+        
+        // Backward compatibility
+        public float MaxRotationAngle => MaxPitchAngle;
+        public float MinRotationAngle => MinPitchAngle;
+        public float RotationSmoothTime => PitchSmoothTime;
+        
         public bool EnableEdgeScrolling => enableEdgeScrolling;
         public float EdgeScrollBorder => Mathf.Max(0f, edgeScrollBorder);
         public float EdgeScrollSpeedMultiplier => Mathf.Clamp01(edgeScrollSpeedMultiplier);
@@ -113,6 +159,39 @@ namespace ProjectZero.Camera
         {
             return Mathf.InverseLerp(MaxZoomDistance, MinZoomDistance, distance);
         }
+        
+        /// <summary>
+        /// Get camera rotation angle based on normalized zoom level (0.0 - 1.0)
+        /// Zoomed out (0.0) = MaxRotationAngle (more top-down)
+        /// Zoomed in (1.0) = MinRotationAngle (more angled)
+        /// </summary>
+        public float GetRotationAngle(float normalizedZoom)
+        {
+            if (!EnableZoomRotation) return MaxRotationAngle; // Default to strategic view if disabled
+            return Mathf.Lerp(MaxRotationAngle, MinRotationAngle, Mathf.Clamp01(normalizedZoom));
+        }
+        
+        /// <summary>
+        /// Get camera pitch angle based on normalized zoom level (0.0 - 1.0)
+        /// Zoomed out (0.0) = MaxPitchAngle (more top-down)
+        /// Zoomed in (1.0) = MinPitchAngle (more angled)
+        /// </summary>
+        public float GetPitchAngle(float normalizedZoom)
+        {
+            if (!EnableZoomRotation) return MaxPitchAngle; // Default to strategic view if disabled
+            return Mathf.Lerp(MaxPitchAngle, MinPitchAngle, Mathf.Clamp01(normalizedZoom));
+        }
+        
+        /// <summary>
+        /// Get camera yaw angle based on normalized zoom level (0.0 - 1.0)
+        /// Zoomed out (0.0) = MaxYawAngle
+        /// Zoomed in (1.0) = MinYawAngle
+        /// </summary>
+        public float GetYawAngle(float normalizedZoom)
+        {
+            if (!EnableYawRotation) return 0f; // No yaw rotation if disabled
+            return Mathf.Lerp(MaxYawAngle, MinYawAngle, Mathf.Clamp01(normalizedZoom));
+        }
 
         private void OnValidate()
         {
@@ -121,6 +200,41 @@ namespace ProjectZero.Camera
             minZoomDistance = Mathf.Max(1f, minZoomDistance);
             maxZoomDistance = Mathf.Max(minZoomDistance + 1f, maxZoomDistance);
             mapBounds = new Vector2(Mathf.Max(1f, mapBounds.x), Mathf.Max(1f, mapBounds.y));
+            
+            // Ensure pitch angles are valid
+            if (maxPitchAngle <= minPitchAngle) maxPitchAngle = minPitchAngle + 5f;
         }
+        
+#if UNITY_EDITOR
+        /// <summary>
+        /// Creates a default camera settings asset in the Resources folder
+        /// </summary>
+        [ContextMenu("Create Default Camera Settings")]
+        public void CreateDefaultAsset()
+        {
+            var newSettings = CreateInstance<CameraSettings>();
+            
+            // Set up good default values for RTS tactical camera
+            newSettings.moveSpeed = 10f;
+            newSettings.zoomSpeed = 2f;
+            newSettings.minZoomDistance = 10f;
+            newSettings.maxZoomDistance = 50f;
+            newSettings.enableZoomRotation = true;
+            newSettings.maxPitchAngle = 80f;
+            newSettings.minPitchAngle = 45f;
+            newSettings.enableYawRotation = false;
+            newSettings.maxYawAngle = 0f;
+            newSettings.minYawAngle = 0f;
+            newSettings.pitchSmoothTime = 0.3f;
+            newSettings.yawSmoothTime = 0.3f;
+            
+            string path = "Assets/_Project/Resources/DefaultCameraSettings.asset";
+            UnityEditor.AssetDatabase.CreateAsset(newSettings, path);
+            UnityEditor.AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.Refresh();
+            
+            Debug.Log($"Created DefaultCameraSettings at {path}");
+        }
+#endif
     }
 }

@@ -22,6 +22,13 @@ namespace ProjectZero.Camera
         private CinemachinePositionComposer positionComposer;
         private float targetZoomDistance;
         private float currentZoomVelocity;
+        
+        // Zoom-coupled rotation
+        private Transform virtualCameraTransform;
+        private float targetPitchAngle;
+        private float targetYawAngle;
+        private float currentPitchVelocity;
+        private float currentYawVelocity;
 
         #region ICameraComponent Implementation
 
@@ -29,13 +36,23 @@ namespace ProjectZero.Camera
         {
             cameraContext = context;
             
-            // Get Cinemachine position composer
+            // Get Cinemachine position composer and virtual camera transform
             if (cameraContext.VirtualCamera != null)
             {
                 positionComposer = cameraContext.VirtualCamera.GetComponent<CinemachinePositionComposer>();
+                virtualCameraTransform = cameraContext.VirtualCamera.transform;
+                
                 if (positionComposer != null)
                 {
                     targetZoomDistance = positionComposer.CameraDistance;
+                }
+                
+                // Initialize rotation angles based on current zoom
+                if (virtualCameraTransform != null)
+                {
+                    float normalizedZoom = cameraContext.Settings.GetNormalizedZoom(targetZoomDistance);
+                    targetPitchAngle = cameraContext.Settings.GetPitchAngle(normalizedZoom);
+                    targetYawAngle = cameraContext.Settings.GetYawAngle(normalizedZoom);
                 }
             }
 
@@ -56,6 +73,7 @@ namespace ProjectZero.Camera
 
             HandleZoomInput();
             ApplyZoom();
+            ApplyRotation();
         }
 
         #endregion
@@ -86,6 +104,18 @@ namespace ProjectZero.Camera
 
                 // Update context zoom level
                 cameraContext.ZoomLevel = cameraContext.Settings.GetNormalizedZoom(targetZoomDistance);
+                
+                // Update target rotation angles based on zoom if enabled
+                if (cameraContext.Settings.EnableZoomRotation)
+                {
+                    targetPitchAngle = cameraContext.Settings.GetPitchAngle(cameraContext.ZoomLevel);
+                    if (cameraContext.Settings.EnableYawRotation)
+                    {
+                        targetYawAngle = cameraContext.Settings.GetYawAngle(cameraContext.ZoomLevel);
+                    }
+                    Debug.Log($"[ZoomRotation] Zoom: {cameraContext.ZoomLevel:F2}, Target Pitch: {targetPitchAngle:F1}°, Target Yaw: {targetYawAngle:F1}°");
+                }
+                
                 cameraContext.IsInputActive = true;
             }
         }
@@ -103,6 +133,81 @@ namespace ProjectZero.Camera
                 Mathf.Infinity,
                 Time.unscaledDeltaTime
             );
+        }
+        
+        private void ApplyRotation()
+        {
+            if (!cameraContext.Settings.EnableZoomRotation)
+            {
+                Debug.LogWarning("[ZoomRotation] Zoom rotation is disabled in settings");
+                return;
+            }
+            
+            if (virtualCameraTransform == null)
+            {
+                Debug.LogError("[ZoomRotation] Virtual camera transform is null!");
+                return;
+            }
+
+            // Get current rotation
+            Vector3 currentRotation = virtualCameraTransform.eulerAngles;
+            Vector3 beforeRotation = currentRotation;
+            
+            Debug.Log($"[ZoomRotation] BEFORE - Current rotation: {currentRotation}, ZoomLevel: {cameraContext.ZoomLevel:F2}");
+            
+            // Smooth rotation interpolation for X-axis (pitch)
+            float currentXRotation = currentRotation.x;
+            float currentYRotation = currentRotation.y;
+            
+            // Handle angle wrapping (0-360 vs -180 to 180)
+            if (currentXRotation > 180f) currentXRotation -= 360f;
+            if (currentYRotation > 180f) currentYRotation -= 360f;
+            
+            Debug.Log($"[ZoomRotation] Normalized angles - Pitch: {currentXRotation:F1}°, Yaw: {currentYRotation:F1}°");
+            Debug.Log($"[ZoomRotation] Target angles - Pitch: {targetPitchAngle:F1}°, Yaw: {targetYawAngle:F1}°");
+            
+            // Apply pitch rotation (up/down)
+            float smoothedPitch = Mathf.SmoothDampAngle(
+                currentXRotation,
+                targetPitchAngle,
+                ref currentPitchVelocity,
+                cameraContext.Settings.PitchSmoothTime,
+                Mathf.Infinity,
+                Time.unscaledDeltaTime
+            );
+            
+            // Apply yaw rotation (left/right) if enabled
+            float smoothedYaw = currentYRotation;
+            if (cameraContext.Settings.EnableYawRotation)
+            {
+                smoothedYaw = Mathf.SmoothDampAngle(
+                    currentYRotation,
+                    targetYawAngle,
+                    ref currentYawVelocity,
+                    cameraContext.Settings.YawSmoothTime,
+                    Mathf.Infinity,
+                    Time.unscaledDeltaTime
+                );
+            }
+            
+            Debug.Log($"[ZoomRotation] Smoothed angles - Pitch: {smoothedPitch:F1}°, Yaw: {smoothedYaw:F1}°");
+            
+            // Apply the smoothed rotation
+            Vector3 newRotation = new Vector3(smoothedPitch, smoothedYaw, currentRotation.z);
+            virtualCameraTransform.eulerAngles = newRotation;
+            
+            // Immediately check if the rotation was actually applied
+            Vector3 actualRotation = virtualCameraTransform.eulerAngles;
+            Debug.Log($"[ZoomRotation] AFTER - Set rotation to: {newRotation}, Actual rotation: {actualRotation}");
+            
+            // Check if Cinemachine is overriding our rotation
+            if (Vector3.Distance(newRotation, actualRotation) > 1f)
+            {
+                Debug.LogWarning($"[ZoomRotation] CINEMACHINE OVERRIDE DETECTED! Set: {newRotation}, Got: {actualRotation}");
+            }
+            
+            // Also check one frame later to see if it gets reset
+            StartCoroutine(CheckRotationStability(newRotation));
         }
 
         private float GetZoomInput()
@@ -160,6 +265,28 @@ namespace ProjectZero.Camera
                     positionComposer.CameraDistance = targetDistance;
                 }
             }
+            
+            // Update rotation angles based on zoom if enabled
+            if (cameraContext.Settings.EnableZoomRotation)
+            {
+                targetPitchAngle = cameraContext.Settings.GetPitchAngle(normalizedZoom);
+                if (cameraContext.Settings.EnableYawRotation)
+                {
+                    targetYawAngle = cameraContext.Settings.GetYawAngle(normalizedZoom);
+                }
+                
+                // Apply rotation immediately if not smooth
+                if (!smooth && virtualCameraTransform != null)
+                {
+                    Vector3 currentRotation = virtualCameraTransform.eulerAngles;
+                    float newYaw = cameraContext.Settings.EnableYawRotation ? targetYawAngle : currentRotation.y;
+                    virtualCameraTransform.eulerAngles = new Vector3(
+                        targetPitchAngle,
+                        newYaw,
+                        currentRotation.z
+                    );
+                }
+            }
 
             cameraContext.ZoomLevel = normalizedZoom;
         }
@@ -187,6 +314,32 @@ namespace ProjectZero.Camera
         /// </summary>
         public float GetCurrentZoomDistance() => positionComposer?.CameraDistance ?? 0f;
 
+        #endregion
+        
+        #region Debug Helpers
+        
+        private System.Collections.IEnumerator CheckRotationStability(Vector3 expectedRotation)
+        {
+            yield return null; // Wait one frame
+            
+            if (virtualCameraTransform != null)
+            {
+                Vector3 actualRotation = virtualCameraTransform.eulerAngles;
+                if (Vector3.Distance(expectedRotation, actualRotation) > 1f)
+                {
+                    Debug.LogWarning($"[ZoomRotation] ROTATION RESET DETECTED! Expected: {expectedRotation}, Got: {actualRotation} (after 1 frame)");
+                    
+                    // Check what components might be overriding rotation
+                    var cinemachineComponents = cameraContext.VirtualCamera.GetComponents<MonoBehaviour>();
+                    Debug.Log($"[ZoomRotation] Cinemachine components on virtual camera:");
+                    foreach (var comp in cinemachineComponents)
+                    {
+                        Debug.Log($"  - {comp.GetType().Name}: {(comp.enabled ? "ENABLED" : "disabled")}");
+                    }
+                }
+            }
+        }
+        
         #endregion
     }
 }

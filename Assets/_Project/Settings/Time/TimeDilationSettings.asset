@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30d486a0fe133024f8297d4e266733bb, type: 3}
+  m_Name: TimeDilationSettings
+  m_EditorClassIdentifier: 
+  realTimeScale: 1
+  tacticalPauseScale: 0
+  slowMotionScale: 0.3
+  commandPlanningScale: 0.1
+  abilityExecutionScale: 0.6
+  defaultTransitionType: 1
+  smoothTransitionDuration: 0.5
+  steppedTransitionDuration: 0.2
+  enableAutoExit: 1
+  slowMotionTimeout: 8
+  commandPlanningTimeout: 15
+  atbFillMultiplierInTacticalMode: 0.5
+  minReadyUnitsForTacticalSuggestion: 2
+  transitionUpdateFrequency: 30
+  transitionCompleteThreshold: 0.01
+  enableDebugLogging: 0
+  showTimeScaleInUI: 0

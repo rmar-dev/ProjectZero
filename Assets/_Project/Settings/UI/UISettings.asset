@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c087861b2f1a9c44183993652ac2d4a6, type: 3}
+  m_Name: UISettings
+  m_EditorClassIdentifier: 
+  referenceResolution: {x: 1920, y: 1080}
+  worldSpaceScaleFactor: 0.01
+  defaultFont: {fileID: 11400000, guid: 5302535af1044152a457ed104f1f4b91, type: 2}
+  defaultFontSize: 18
+  defaultTextColor: {r: 1, g: 1, b: 1, a: 1}
+  defaultLabelSize: {x: 200, y: 50}
+  defaultButtonSize: {x: 200, y: 50}
+  defaultPanelSize: {x: 400, y: 300}
+  defaultButtonSprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  defaultButtonColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.8}
+  buttonHighlightColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  buttonPressedColor: {r: 0.15, g: 0.15, b: 0.15, a: 1}
+  buttonDisabledColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.5}
+  defaultPanelSprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  defaultPanelColor: {r: 0.1, g: 0.1, b: 0.1, a: 0.7}
+  fadeInDuration: 0.5
+  fadeOutDuration: 0.5
+  fadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  worldLabelScale: 1
+  worldLabelMaxDistance: 50
+  worldLabelsScaleWithDistance: 1
+  worldLabelFontSize: 8

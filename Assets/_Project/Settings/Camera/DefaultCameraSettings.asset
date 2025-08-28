@@ -13,14 +13,23 @@ MonoBehaviour:
   m_Name: DefaultCameraSettings
   m_EditorClassIdentifier: 
   moveSpeed: 10
-  movementSmoothTime: 0.3
+  movementSmoothTime: 0.1
   useAcceleration: 1
-  accelerationMultiplier: 2
-  minZoomDistance: 10
-  maxZoomDistance: 50
+  accelerationMultiplier: 3
+  useCameraRelativeMovement: 1
+  minZoomDistance: 5
+  maxZoomDistance: 10
   zoomSpeed: 2
   zoomSmoothTime: 0.2
-  enableEdgeScrolling: 1
+  enableZoomRotation: 1
+  maxPitchAngle: 80
+  minPitchAngle: 45
+  enableYawRotation: 1
+  maxYawAngle: 66
+  minYawAngle: 0
+  pitchSmoothTime: 0.3
+  yawSmoothTime: 0.3
+  enableEdgeScrolling: 0
   edgeScrollBorder: 20
   edgeScrollSpeedMultiplier: 0.5
   mapBounds: {x: 100, y: 100}

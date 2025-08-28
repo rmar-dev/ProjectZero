@@ -23,12 +23,21 @@ namespace ProjectZero.Camera
         [Header("Rotation Settings")]
         [SerializeField] private float rotationSpeed = 2f;
         [SerializeField] private float rotationSmoothTime = 0.1f;
+        [SerializeField] private bool enableZoomCoupledRotation = true;
         [SerializeField] private float minPitch = 10f;
         [SerializeField] private float maxPitch = 80f;
         
         [Header("Sensitivity Settings")]
         [SerializeField] private float mouseSensitivity = 1f;
         [SerializeField] private float scrollSensitivity = 1f;
+        
+        [Header("Rotation Tuning")]
+        [SerializeField] [Range(0.1f, 3f)] private float pitchSensitivity = 1f;
+        [SerializeField] [Range(0.1f, 3f)] private float yawSensitivity = 1f;
+        [SerializeField] [Tooltip("How quickly zoom rotation responds (lower = more responsive)")]
+        [Range(0.05f, 1f)] private float zoomRotationSmoothTime = 0.3f;
+        [SerializeField] [Tooltip("Enforce strict limits even for zoom-coupled rotation")]
+        private bool enforceStrictLimits = true;
         
         private CinemachinePositionComposer positionComposer;
         
@@ -125,6 +134,23 @@ namespace ProjectZero.Camera
                 {
                     float normalizedZoom = Mathf.InverseLerp(maxZoomDistance, minZoomDistance, targetZoomDistance);
                     cameraController.ZoomLevel = normalizedZoom;
+                    
+                    // Apply zoom-coupled rotation if enabled
+                    if (enableZoomCoupledRotation && cameraController.Settings.EnableZoomRotation)
+                    {
+                        float targetPitchFromZoom = cameraController.Settings.GetPitchAngle(normalizedZoom);
+                        float targetYawFromZoom = cameraController.Settings.GetYawAngle(normalizedZoom);
+                        
+                        // Update target rotation based on zoom (only if not manually overridden)
+                        // RTS-style: Only apply zoom rotation to pitch, not yaw
+                        if (!Mouse.current.rightButton.isPressed)
+                        {
+                            targetRotation.x = targetPitchFromZoom;
+                            // Note: We don't modify yaw for RTS-style zoom rotation
+                            
+                            Debug.Log($"[CameraDirectControls] Zoom-coupled pitch rotation - Zoom: {normalizedZoom:F2}, Target Pitch: {targetPitchFromZoom:F1}°");
+                        }
+                    }
                 }
             }
         }
@@ -139,20 +165,32 @@ namespace ProjectZero.Camera
             {
                 Vector2 mouseDelta = mouse.delta.ReadValue();
                 
-                // Apply mouse sensitivity and rotation speed
-                float yawDelta = mouseDelta.x * mouseSensitivity * rotationSpeed;
-                float pitchDelta = -mouseDelta.y * mouseSensitivity * rotationSpeed;
+                // Apply mouse sensitivity and rotation speed with separate pitch/yaw tuning
+                float yawDelta = mouseDelta.x * mouseSensitivity * rotationSpeed * yawSensitivity;
+                float pitchDelta = -mouseDelta.y * mouseSensitivity * rotationSpeed * pitchSensitivity;
                 
                 // Update target rotation
                 targetRotation.y += yawDelta;
                 targetRotation.x += pitchDelta;
                 
-                // Clamp pitch to reasonable values for tactical camera
-                targetRotation.x = Mathf.Clamp(targetRotation.x, minPitch, maxPitch);
+                // Apply pitch limits from CameraSettings if available, otherwise use fallback values
+                float minPitchLimit = minPitch;
+                float maxPitchLimit = maxPitch;
                 
-                // Normalize yaw to 0-360 range
+                if (cameraController?.Settings != null)
+                {
+                    minPitchLimit = cameraController.Settings.MinPitchAngle;
+                    maxPitchLimit = cameraController.Settings.MaxPitchAngle;
+                }
+                
+                // Only clamp pitch - let yaw rotate freely for RTS-style camera
+                targetRotation.x = Mathf.Clamp(targetRotation.x, minPitchLimit, maxPitchLimit);
+                
+                // Normalize yaw to 0-360 range (no limits, full rotation allowed)
                 targetRotation.y = targetRotation.y % 360f;
                 if (targetRotation.y < 0f) targetRotation.y += 360f;
+                
+                Debug.Log($"[CameraDirectControls] Manual rotation - Pitch: {targetRotation.x:F1}° (limits: {minPitchLimit:F1}°-{maxPitchLimit:F1}°), Yaw: {targetRotation.y:F1}° (unlimited)");
             }
         }
 
@@ -195,10 +233,21 @@ namespace ProjectZero.Camera
         void OnGUI()
         {
             // Show instructions
-            GUI.Label(new Rect(10, 10, 400, 60), 
+            string zoomRotationStatus = "";
+            if (enableZoomCoupledRotation && cameraController?.Settings.EnableZoomRotation == true)
+            {
+                zoomRotationStatus = "\n• Zoom-Coupled Rotation: ENABLED";
+            }
+            else if (enableZoomCoupledRotation)
+            {
+                zoomRotationStatus = "\n• Zoom-Coupled Rotation: DISABLED (check CameraSettings)";
+            }
+            
+            GUI.Label(new Rect(10, 10, 400, 80), 
                 "Camera Test Controls:\n" +
                 "• Mouse Wheel: Zoom In/Out\n" +
-                "• Right-click + Drag: Rotate Camera");
+                "• Right-click + Drag: Rotate Camera" +
+                zoomRotationStatus);
         }
 
         // Public methods to test zoom and rotation programmatically
